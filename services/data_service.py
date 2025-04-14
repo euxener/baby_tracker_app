@@ -70,7 +70,7 @@ class DataService:
         baby = Baby(
             baby_dict["name"],
             birthdate,
-            baby_dict["gender"].
+            baby_dict["gender"],
             baby_dict["notes"]
         )
         
