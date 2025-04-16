@@ -1,4 +1,3 @@
-from controllers import baby_controller
 from controllers.baby_controller import BabyController
 from controllers.growth_controller import GrowthController
 from services.data_service import DataService

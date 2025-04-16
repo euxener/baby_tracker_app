@@ -34,8 +34,7 @@ class CLIView:
             if choice == '1':
                 self.manage_babies_menu()
             elif choice == '2':
-                #self.track_growth_menu()
-                print("Track growth not implemented yet.")
+                self.track_growth_menu()
             elif choice == '3':
                 print("Milestone tracking not implemented yet.")
             elif choice == '4':
@@ -66,17 +65,13 @@ class CLIView:
             if choice == '1':
                 self.add_baby()
             elif choice == '2':
-                #self.list_babies()
-                print("Not implemented yet.")
+                self.list_babies()
             elif choice == '3':
-                #self.view_baby_details()
-                print("Not implemented yet.")
+                self.view_baby_details()
             elif choice == '4':
-                #self.update_baby()
-                print("Not implemented yet.")
+                self.update_baby()
             elif choice == '5':
-                #self.delete_baby()
-                print("Not implemented yet.")
+                self.delete_baby()
             elif choice == '0':
                 break
             else:
@@ -241,7 +236,7 @@ class CLIView:
         )
         
         if updated_baby:
-            print(f"\nBaby '{updated_baby.name}' updated sucessfully.")
+            print(f"\nBaby '{updated_baby.name}' updated successfully.")
         else:
             print("\nFailed to update baby information.")
     
@@ -369,10 +364,71 @@ class CLIView:
         
         notes = input("Notes (optional): ")
         
+        # Create the record
+        record = self.growth_controller.add_growth_record(
+            baby.id,
+            date,
+            weight,
+            height,
+            head_circumference,
+            notes
+        )
         
+        if record:
+            print("\nGrowth record added successfully.")
+        else:
+            print("\nFailed to add growth record.")
             
     def view_growth_records(self):
-        pass
+        """View growth records for a baby."""
+        # Get the baby first
+        babies = self.baby_controller.get_all_babies()
+        
+        if not babies:
+            print("\nNo babies found.")
+            return
+        
+        self.list_babies()
+        
+        try:
+            choice = int(input("\nEnter the number of baby (0 to cancel): "))
+            if choice == 0:
+                return
+            
+            if 1 <= choice <= len(babies):
+                baby = babies[choice - 1]
+                self._display_growth_records(baby)
+            else:
+                print("Invalid selection.")            
+        except ValueError:
+            print("Please enter a valid number.")
+    
+    def _display_growth_records(self, baby):
+        """Display growth record for baby."""
+        records = self.growth_controller.get_growth_records(baby.id)
+        
+        if not records:
+            print(f"\n{baby.name} has no growth records.")
+            return
+        
+        print(f"\n===== Growth Records for {baby.name} =====")
+        
+        # Display as table
+        print("\nDate       | Weight (kg) | Height (cm) | Head Circ. (cm) | Notes")
+        print("-" * 75)
+        
+        for record in records:
+            date_str = record.date.strftime("%Y-%m-%d")
+            weight_str = f"{record.weight:.2f}" if record.weight is not None else "N/A"
+            height_str = f"{record.height:.2f}" if record.height is not None else "N/A"
+            hc_str = f"{record.head_circumference:.1f}" if record.head_circumference is not None else "N/A"
+            notes_str = record.notes if record.notes else ""
+            
+            print(f"{date_str} | {weight_str:^11} | {height_str:^11} | {hc_str:^15} | {notes_str}")
+            
+            input("\nPress Enter to continue...")
+                    
+# Pending to add methods for updating and deleting growth records
     
     def update_growth_record(self):
         pass
