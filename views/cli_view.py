@@ -427,7 +427,7 @@ class CLIView:
             print(f"{date_str} | {weight_str:^11} | {height_str:^11} | {hc_str:^15} | {notes_str}")
             
             input("\nPress Enter to continue...")
-                    
+        
 # Pending to add methods for updating and deleting growth records
     
     def update_growth_record(self):

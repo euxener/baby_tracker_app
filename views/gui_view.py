@@ -57,4 +57,4 @@ class GUIView(QMainWindow):
     
     def setup_reports_tab(self):
         pass
-                
+        
