@@ -1,6 +1,6 @@
 from controllers import baby_controller
 from controllers.baby_controller import BabyController
-# from controllers.growth_controller import GrowthController
+from controllers.growth_controller import GrowthController
 from services.data_service import DataService
 from views.cli_view import CLIView
 
@@ -13,10 +13,10 @@ def main():
     
     # Initialize controllers
     baby_controller = BabyController(data_service)
-    #growth_controller = GrowthController(data_service)
+    growth_controller = GrowthController(data_service)
     
     # Initialize view
-    cli_view = CLIView(baby_controller)
+    cli_view = CLIView(baby_controller, growth_controller)
     
     # Run the application
     cli_view.run()
