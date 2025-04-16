@@ -14,3 +14,6 @@ wheels/
 
 # Test data
 data
+
+# Local files
+.DS_store
