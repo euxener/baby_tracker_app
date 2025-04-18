@@ -1,7 +1,6 @@
 # controllers/growth_controller.py
 
 from datetime import datetime
-from models import growth_record
 from models.growth_record import GrowthRecord
 
 class GrowthController:

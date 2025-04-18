@@ -63,7 +63,8 @@ class Milestone:
         return {
             "id": self.id,
             "baby_id": self.baby_id,
-            "name": self.category,
+            "name": self.name,
+            "category": self.category,
             "achieved_date": self.achieved_date.isoformat() if self.achieved_date else None,
             "expected_range": self.expected_range,
             "notes": self.notes

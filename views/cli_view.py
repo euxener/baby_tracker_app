@@ -167,7 +167,7 @@ class CLIView:
         if baby.growth_records:
             print("\nGrowth Records:")
             for i, record in enumerate(sorted(baby.growth_records, key = lambda r: r.date), 1):
-                print(f"{i}. Date: {record.date.strfime('%Y-%m-%d')}")
+                print(f"{i}. Date: {record.date.strftime('%Y-%m-%d')}")
                 if record.weight:
                     print(f"   Weight: {record.weight} kg")
                 if record.height:
@@ -211,7 +211,7 @@ class CLIView:
         name = input(f"Name [{baby.name}]")
         name = name if name else baby.name
         
-        birthdate_str = input(f"Birthdate [{baby.birthdate.strftime}]")
+        birthdate_str = input(f"Birthdate [{baby.birthdate.strftime("%Y-%m-%d")}]: ")
         if birthdate_str:
             try:
                 birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d")
@@ -426,12 +426,180 @@ class CLIView:
             
             print(f"{date_str} | {weight_str:^11} | {height_str:^11} | {hc_str:^15} | {notes_str}")
             
-            input("\nPress Enter to continue...")
+        input("\nPress Enter to continue...")
         
-# Pending to add methods for updating and deleting growth records
     
     def update_growth_record(self):
-        pass
-    
+        """Update a growth record"""
+        
+        # Get the baby first
+        babies = self.baby_controller.get_all_babies()
+        
+        if not babies:
+            print("\nNo babies found.")
+            return
+        
+        self.list_babies()
+        
+        try:
+            baby_choice = int(input("\nEnter the number of baby (0 to cancel): "))
+            if baby_choice == 0:
+                return
+
+            if 1 <= baby_choice <= len(babies):
+                baby = babies[baby_choice - 1]
+                
+                # Get the baby's growth records
+                records = self.growth_controller.get_growth_records(baby.id)
+                
+                if not records:
+                    print(f"\n{baby.name} has no growth records.")
+                    return
+
+                # Display records
+                print(f"\n===== Growth Records for {baby.name} =====")
+                for i, record in enumerate(records, 1):
+                    date_str = record.date.strftime("%Y-%m-%d")
+                    weight_str = f"{record.weight} kg" if record.weight is not None else "not recorded"
+                    height_str = f"{record.height} kg" if record.height is not None else "not recorded"
+                    hc_str = f"{record.head_circumference} cm" if record.head_circumference is not None else "not recorded"
+                    
+                    print(f"{i}. Date: {date_str}, Weight: {weight_str}, Height: {height_str}, Head: {hc_str}")
+                
+                # Get the record to update
+                record_choice = int(input("\nEnter the number of record to update (0 to cancel): "))
+                if record_choice == 0:
+                    return
+                
+                if 1 <= record_choice <= len(records):
+                    record = records[record_choice - 1]
+                    self._update_growth_record_form(baby, record)
+                else:
+                    print("Invalid selection.")
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Please enter a valid number.")
+
+    def _update_growth_record_form(self, baby, record):
+        """Form for updating a growth record."""
+        print(f"\n===== Update Growth Record for {baby.name} =====")
+        print("Leave fields blank to keep current values.")
+        
+        # Date
+        date_str = input(f"Date [{record.date.strftime("%Y-%m-%d")}]: ")
+        if date_str:
+            try:
+                date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+            except ValueError:
+                print("Invalid date format. Keeping current date.")
+                date = record.date
+        else:
+            date = record.date
+        
+        # Weight
+        try:
+            current_weight = f"{record.weight}" if record.weight is not None else ""
+            weight_str = input(f"Weight in kg [{current_weight}]: ")
+            weight = float(weight_str) if weight_str else record.weight
+        except ValueError:
+            print("Invalid weight. Keeping current value.")
+            weight = record.weight
+            
+        # Height
+        try:
+            current_height = f"{record.height}" if record.height is not None else ""
+            height_str = input(f"height in cm [{current_height}]: ")
+            height = float(height_str) if height_str else record.height
+        except ValueError:
+            print("Invalid height. Keeping current value.")
+            height = record.height
+            
+        # Head circumference
+        try:
+            current_hc = f"{record.head_circumference}" if record.head_circumference is not None else ""
+            hc_str = input(f"Head circumference in cm [{current_hc}]: ")
+            head_circumference = float(hc_str) if hc_str else record.head_circumference
+        except ValueError:
+            print("Invalid head circumference. Keeping current value.")
+            head_circumference = record.head_circumference
+        
+        # Notes
+        current_notes = record.notes if record.notes else ""
+        notes = input(f"Notes [{current_notes}]: ")
+        notes = notes if notes else record.notes
+        
+        # Update record
+        updated_record = self.growth_controller.update_growth_record(
+            baby.id,
+            record.id,
+            date = date,
+            weight = weight,
+            height = height,
+            head_circumference = head_circumference,
+            notes = notes
+        )
+        
+        if updated_record:
+            print("\nGrowth record updated successfully.")
+        else:
+            print("\nFailed to update growth record.")
+        
     def delete_growth_record(self):
-        pass
+        """Delete a growth record."""
+        # Get baby
+        babies = self.baby_controller.get_all_babies()
+        
+        if not babies:
+            print("\nNo babies found.")
+            return
+        
+        self.list_babies()
+        
+        try:
+            baby_choice = int(input("\nEnter the number of baby (0 to cancel): "))
+            if baby_choice == 0:
+                return
+            
+            if 1 <= baby_choice <= len(babies):
+                baby = babies[baby_choice - 1]
+                
+                # Get baby's growth records
+                records = self.growth_controller.get_growth_records(baby.id)
+                
+                if not records:
+                    print(f"\n{baby.name} has no growth records.")
+                    return
+                
+                # Display records
+                print(f"\n===== Growth Records for {baby.name} =====")
+                for i, record in enumerate(records, 1):
+                    date_str = record.date.strftime("%Y-%m-%d")
+                    weight_str = f"{record.weight} kg" if record.weight is not None else "not recorded"
+                    height_str = f"{record.height} kg" if record.height is not None else "not recorded"
+                    hc_str = f"{record.head_circumference} cm" if record.head_circumference is not None else "not recorded"
+                    
+                    print(f"{i}. Date: {date_str}, Weight: {weight_str}, Height: {height_str}, Head: {hc_str}")
+                
+                # Get the record to delete
+                record_choice = int(input("\nEnter the number of record to delete (0 to cancel): "))
+                if record_choice == 0:
+                    return
+                
+                if 1 <= record_choice <= len(records):
+                    record = records[record_choice - 1]
+                    
+                    confirm = input(f"Are you sure you want to delete growth record from {record.date.strftime("%Y-%m-%d")}? (y/n): ")
+                    if confirm.lower() == "y":
+                        if self.growth_controller.delete_growth_record(baby.id, record.id):
+                            print("\nGrowth record deleted successfully.")
+                        else:
+                            print("\nFailed to delete growth record.")
+                    else:
+                        print("\nDeletion cancelled.")
+                else:
+                    print("Invalid selection.")
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Please enter a valid number.")

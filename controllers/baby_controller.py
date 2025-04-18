@@ -1,7 +1,7 @@
 # controllers/baby_controller.py
 
-from models.baby import Baby
 from datetime import datetime
+from models.baby import Baby
 
 class BabyController:
     def __init__(self, data_service) -> None:
