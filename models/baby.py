@@ -21,6 +21,7 @@ class Baby:
         self.gender = gender
         self.notes = notes
         self.growth_records = []
+        self.milestones = []
         self.daily_logs = []
         
     def calculate_age(self, as_of_date = None):
@@ -57,6 +58,14 @@ class Baby:
             growth_record (GrowthRecord): Growth record to add
         """
         self.growth_records.append(growth_record)
+        
+    def add_milestone(self, milestone):
+        # TODO: Pending to create function
+        pass
+    
+    def add_daily_log(self, log):
+        # TODO: Pending to create function
+        pass
         
     def to_dict(self):
         """

@@ -4,6 +4,7 @@ import json
 import os
 from models.baby import Baby
 from models.growth_record import GrowthRecord
+from models.milestone import Milestone
 from datetime import datetime
 
 class DataService:
@@ -40,6 +41,22 @@ class DataService:
             record.to_dict() for record in baby.growth_records
         ]
         
+        # TODO: Implement saving of milestones
+        if hasattr(baby, 'milestones') and baby.milestones:
+            baby_dict["milestones"] = [
+                milestone.to_dict() for milestone in baby.milestones
+            ]
+        else:
+            baby_dict['milestones'] = []
+            
+        # TODO: Implement saving of daily logs
+        if hasattr(baby, 'daily_logs') and baby.daily_logs:
+            baby_dict["daily_logs"] = [
+                daily_log.to_dict() for daily_log in baby.daily_logs
+            ]
+        else:
+            baby_dict['daily_logs'] = []
+                    
         # Save to file
         with open(self._get_baby_file_path(baby.id), 'w') as f:
             json.dump(baby_dict, f, indent = 2, default = str)
@@ -76,7 +93,7 @@ class DataService:
         
         baby.id = baby_dict["id"] # Use saved ID
         
-        # Load related objects
+        # Load growths records
         if "growth_records" in baby_dict:
             for record_dict in baby_dict["growth_records"]:
                 date = datetime.fromisoformat(record_dict["date"])
@@ -90,6 +107,26 @@ class DataService:
                 )
                 record.id = record_dict["id"] # Saved ID
                 baby.growth_records.append(record)
+                
+        # Load milestones
+        if "milestones" in baby_dict:
+            for milestone_dict in baby_dict["milestones"]:
+                achieved_date = None
+                if milestone_dict['achieved_date']:
+                    achieved_date = datetime.fromisoformat(milestone_dict["achieved_date"])
+                milestone = Milestone(
+                    milestone_dict['baby_id'],
+                    milestone_dict['name'],
+                    milestone_dict['category'],
+                    achieved_date,
+                    milestone_dict['expected_range'],
+                    milestone_dict['notes']
+                )
+                milestone.id = milestone_dict["id"] # Saved ID
+                baby.milestones.append(milestone)
+                
+        # TODO: Implement loading of daily logs
+        # Load daily logs
         
         return baby
     
