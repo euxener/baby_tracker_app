@@ -627,7 +627,7 @@ class CLIView:
             if choice == '1':
                 self.add_milestone()
             elif choice == '2':
-                self.view_milestone()
+                self.view_milestones()
             elif choice == '3':
                 self.update_milestone()
             elif choice == '4':
@@ -738,7 +738,7 @@ class CLIView:
         else:
             print("\nFailed to add milestone.")
             
-    def view_milestone(self):
+    def view_milestones(self):
         """View milestones for a baby."""
         
         # Get baby
@@ -1096,16 +1096,399 @@ class CLIView:
     # TODO: Implement add methods for feeding, sleep, diaper logs and view logs method
     def add_feeding_log(self):
         """Add a new feeding log."""
-        pass
-    
+        # Get baby
+        babies = self.baby_controller.get_all_babies()
+        
+        if not babies:
+            return
+        
+        self.list_babies()
+        
+        try:
+            choice = int(input("\nEnter the number of baby (0 to cancel): "))
+            if choice == 0:
+                return
+            
+            if 1 <= choice <= len(babies):
+                baby = babies[choice - 1]
+                self._add_feeding_log_form(baby)
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Please enter a valid number.")
+            
+    def _add_feeding_log_form(self, baby):
+        """Form for adding a feeding log."""
+        print(f"\n===== Add Feeding Log for {baby.name} =====")
+        
+        # Get date and time
+        while True:
+            date_str = input(f"Date (YYYY-MM-DD) [today]: ")
+            if not date_str:
+                date = datetime.datetime.now().date()
+                break
+            
+            try:
+                date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+                break
+            except ValueError:
+                print("Invalid date format. Please use YYYY-MM-DD.")
+                
+        while True:
+            time_str = input("Time (HH:MM) [now]: ")
+            if not time_str:
+                time = datetime.datetime.now().time()
+                break
+            
+            try:
+                time = datetime.datetime.strptime(time_str, "%H:%M").time()
+                break
+            except ValueError:
+                print("Invalid time format. Please use HH:MM.")
+                
+        # Get feeding type
+        print("\nFeeding Type:")
+        print("1. Breast")
+        print("2. Bottle")
+        print("3. Solid")
+        
+        feeding_type = "other"
+        try:
+            type_choice = int(input("\nSelect feeding type: "))
+            if 1 <= type_choice <= 3:
+                feeding_types = ["breast", "bottle", "solid"]
+                feeding_type = feeding_types[type_choice - 1]
+            else:
+                print("Invalid choice. Using 'other'.")
+        except ValueError:
+            print("Invalid choice. Using 'other'.")
+            
+        # Get amount or duration based on feeding type
+        amount = None
+        duration = None
+        
+        if feeding_type == "bottle":
+            try:
+                amount_str = input("Amount (in ml/oz): ")
+                if amount_str:
+                    amount = float(amount_str)
+            except ValueError:
+                print("Invalid amount. Setting to None.")
+        
+        elif feeding_type == "breast":
+            try:
+                duration_str = input("Duration (in minutes): ")
+                if duration_str:
+                    duration = int(duration_str)
+            except ValueError:
+                print("Invalid amount. Setting to None.")
+        
+        elif feeding_type == "solid":
+            try:
+                amount_str = input("Amount (in grams): ")
+                if amount_str:
+                    amount = float(amount_str)
+            except ValueError:
+                print("Invalid amount. Setting to None.")
+        
+        # Get notes
+        notes = input("Notes (optional): ")
+        
+        # Create log
+        log = self.daily_log_controller.add_feeding_log(
+            baby.id,
+            date,
+            time,
+            feeding_type,
+            amount,
+            duration,
+            notes
+        )
+        
+        if log:
+            print("\nFeeding log added successfully.")
+        else:
+            print("\nFailed to add feeding log.")
+
     def add_sleep_log(self):
         """Add a new sleep log"""
-        pass
+        # Get baby first
+        babies = self.baby_controller.get_all_babies()
+        
+        if not babies:
+            print("\nNo babies found.")
+            return
+        
+        self.list_babies()
+        
+        try:
+            choice = int(input("\nEnter the number of baby (0 to cancel): "))
+            if choice == 0:
+                return
+            
+            if 1 <= choice <= len(babies):
+                baby = babies[choice - 1]
+                self._add_sleep_log_form(baby)
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Please enter a valid number.")
+                
+    def _add_sleep_log_form(self, baby):
+        """Form for adding a sleep log."""
+        print(f"\n===== Add Sleep Log for {baby.name} =====")
+        
+        # Get date
+        while True:
+            date_str = input("Date (YYYY-MM-DD) [today]: ")
+            if not date_str:
+                date = datetime.datetime.now().date()
+                break
+            
+            try:
+                date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+                break
+            except ValueError:
+                print("Invalid date format. Please use YYYY-MM-DD.")
+                
+        # Get start time
+        while True:
+            start_time_str = input("Start time (HH:MM): ")
+            try:
+                start_time = datetime.datetime.strptime(start_time_str, "%H:%M").time()
+                break
+            except ValueError:
+                print("Invalid time format. Please use HH:MM.")
+                
+        # Get end time (optional)
+        end_time = None
+        still_sleeping = input("Is baby still sleeping? (y/n): ")
+        
+        if still_sleeping.lower() != 'y':
+            while True:
+                end_time_str = input("End time (HH:MM): ")
+                if not end_time_str:
+                    break
+                
+                try:
+                    end_time = datetime.datetime.strptime(end_time_str, "%H:%M").time()
+                    break
+                except ValueError:
+                    print("Invalid time format. Please use HH:MM.")
+                    
+        # Get sleep quality
+        print("\nSleep Quality:")
+        print("1. Good")
+        print("2. Fair")
+        print("3. Poor")
+        
+        quality = None
+        try:
+            quality_choice = int(input("\nSelect sleep quality (optional, press Enter to skip): ") or "0")
+            if 1 <= quality_choice <= 3:
+                qualities = ["good", "fair", "poor"]
+                quality = qualities[quality_choice - 1]
+        except ValueError:
+            pass
+        
+        # Get notes
+        notes = input("Notes (optional): ")
+        
+        # Create the log
+        log = self.daily_log_controller.add_sleep_log(
+            baby.id,
+            date,
+            start_time,
+            end_time,
+            quality,
+            notes
+        )
+        
+        if log:
+            print("\nSleep log added successfully.")
+        else:
+            print("\nFailed to add sleep log.")
     
     def add_diaper_log(self):
         """Add a new diaper log"""
-        pass
+        # Get baby first
+        babies = self.baby_controller.get_all_babies()
+        
+        if not babies:
+            print("\nNo babies found/")
+            return
+        
+        self.list_babies()
+        
+        try:
+            choice = int(input("\nEnter the number of baby (0 to cancel): "))
+            if choice == 0:
+                return
+            
+            if 1 <= choice <= len(babies):
+                baby = babies[choice - 1]
+                self._add_diaper_log_form(baby)
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Please enter a valid number.")
+    
+    def _add_diaper_log_form(self, baby):
+        """Form for adding diaper log."""
+        print(f"\n===== Add Diaper Log for {baby.name} =====")
+        
+        # Get date and time
+        while True:
+            date_str = input("Date (YYYY-MM-DD) [today]: ")
+            if not date_str:
+                date = datetime.datetime.now().date()
+                break
+            
+            try:
+                date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+                break
+            except ValueError:
+                print("Invalid date format. Please use YYYY-MM-DD.")
+        
+        while True:
+            time_str = input("Time (HH:MM) [now]: ")
+            if not time_str:
+                time = datetime.datetime.now().time()
+                break
+            
+            try:
+                time = datetime.datetime.strptime(time_str, "%H:%M").time()
+                break
+            except ValueError:
+                print("Invalid time format. Please use HH:MM.")
+                
+        # Get diaper type
+        try:
+            type_choice = int(input("\nSelect diaper type: "))
+            if 1 <= type_choice <= 3:
+                diaper_types = ["wet", "soiled", "both"]
+                diaper_type = diaper_types[type_choice - 1]
+            else:
+                print("Invalid choice. Please try again.")
+                return
+        except ValueError:
+            print("Invalid choice. Please try again.")
+            return
+        
+        # Get notes
+        notes = input("Notes (optional): ")
+        
+        # Create log
+        log = self.daily_log_controller.add_diaper_log(
+            baby.id,
+            date,
+            time,
+            diaper_type,
+            notes
+        )
+        
+        if log:
+            print("\nDiaper log added successfully.")
+        else:
+            print("\nFailed to add diaper log.")
     
     def view_daily_logs(self):
         """View daily logs for a baby."""
-        pass
+        # Get baby
+        babies = self.baby_controller.get_all_babies()
+        
+        if not babies:
+            print("\nNo babies found.")
+            return
+        
+        self.list_babies()
+        
+        try:
+            choice = int(input("\nEnter the number of baby (0 to cancel): "))
+            if choice == 0:
+                return
+            
+            if 1 <= choice <= len(babies):
+                baby = babies[choice - 1]
+                
+                # Ask for date filter (optional)
+                date_filter = None
+                use_filter = input("Filter by date? (y/n): ")
+                
+                if use_filter.lower() == 'y':
+                    while True:
+                        date_str = input("Date (YYYY-MM-DD): ")
+                        try:
+                            date_filter = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+                            break
+                        except ValueError:
+                            print("Invalid date format. Please use YYYY-MM-DD.")
+                # Get logs
+                logs = self.daily_log_controller.get_daily_logs(baby.id, date_filter)
+                
+                if not logs:
+                    if date_filter:
+                        print(f"\n{baby.name} has no logs for {date_filter.strftime('%Y-%m-%d')}.")
+                    else:
+                        print(f"\n{baby.name} has no logs.")
+                    return
+                
+                self._display_daily_logs(baby, logs)
+            else:
+                print("Invalid selection.")
+        except ValueError:
+            print("Please enter a valid number.")
+                
+    def _display_daily_logs(self, baby, logs):
+        """Display daily logs for baby."""
+        date_str = logs[0].date.strftime("%Y-%m-%d") if logs else ""
+        print(f"\n===== Daily Logs for {baby.name} on {date_str} =====")
+        
+        # Group logs by date
+        logs_by_date= {}
+        for log in logs:
+            date_str = log.date.strftime("%Y-%m-%d")
+            if date_str not in logs_by_date:
+                logs_by_date[date_str] = []
+            logs_by_date[date_str].append(log)
+            
+        # Display logs by date
+        for date_str, day_logs in sorted(logs_by_date.items()):
+            print(f"\n=== {date_str} ===")
+            
+            # Sort logs by time
+            day_logs.sort(key = lambda log: log.time)
+            
+            for log in day_logs:
+                time_str = log.time.strftime("%H:%M")
+                
+                if log.log_type == "feeding":
+                    feeding_type = log.feeding_type
+                    amount_str = f"{log.amount} ml/oz" if log.amount else "not recorded"
+                    duration_str = f"{log.duration} minutes" if log.duration else "not recorded"
+                    
+                    print(f"{time_str} - Feeding ({feeding_type})")
+                    if feeding_type == "bottle" or feeding_type == "solid":
+                        print(f"   Amount: {amount_str}")
+                    if feeding_type == "breast":
+                        print(f"   Duration: {duration_str}")
+                
+                elif log.log_type == "sleep":
+                    end_time_str = log.end_time.strftime("%H:%M") if log.end_time else "ongoing"
+                    duration_str = f"{log.duration:.1f} minutes" if log.duration else "ongoing"
+                    quality_str = log.quality if log.quality else "not recorded"
+                    
+                    print(f"{time_str} - Sleep (until {end_time_str})")
+                    print(f"   Duration: {duration_str}")
+                    print(f"   Quality: {quality_str}")
+                
+                elif log.log_type == "diaper":
+                    print(f"{time_str} - Diaper ({log.diaper_type})")
+                    
+                else:
+                    print(f"{time_str} - {log.log_type.capitalize()}")
+                    
+                if log.notes:
+                    print(f"   Notes: {log.notes}")
+                    
+        input("\nPress Enter to continue...")
