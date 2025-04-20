@@ -39,6 +39,7 @@ class Baby:
         if as_of_date is None:
             as_of_date = datetime.now()
         
+        # TODO: Fix calculation to avoid standard 30 day months
         delta = as_of_date - self.birthdate
         years = delta.days // 365
         remaining_days = delta.days % 365
