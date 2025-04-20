@@ -102,6 +102,7 @@ class DailyLogController:
         if not hasattr(baby, 'daily_logs'):
             baby.daily_logs = []
         baby.daily_logs.append(log)
+        self.data_service.save_baby(baby)
         
         return log
     

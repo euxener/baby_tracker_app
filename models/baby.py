@@ -4,6 +4,8 @@ from datetime import datetime
 import re
 import uuid
 
+from models import daily_log
+
 class Baby:
     def __init__(self, name, birthdate, gender = None, notes = None) -> None:
         """
@@ -60,12 +62,26 @@ class Baby:
         self.growth_records.append(growth_record)
         
     def add_milestone(self, milestone):
-        # TODO: Pending to create function
-        pass
+        """
+        Add a milestone to baby's history
+
+        Args:
+            milestone (Milestone): Milestone to add
+        """
+        if not hasattr(self, 'milestones'):
+            self.milestones = []
+        self.milestones.append(milestone)
     
     def add_daily_log(self, log):
-        # TODO: Pending to create function
-        pass
+        """
+        Add a daily log to baby's history
+
+        Args:
+            log (DailyLog): Log to add
+        """
+        if not hasattr(self, 'daily_logs'):
+            self.daily_logs = []
+        self.daily_logs.append(log)
         
     def to_dict(self):
         """

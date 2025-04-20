@@ -216,7 +216,7 @@ class CLIView:
         name = input(f"Name [{baby.name}]")
         name = name if name else baby.name
         
-        birthdate_str = input(f"Birthdate [{baby.birthdate.strftime("%Y-%m-%d")}]: ")
+        birthdate_str = input(f"Birthdate [{baby.birthdate.strftime('%Y-%m-%d')}]: ")
         if birthdate_str:
             try:
                 birthdate = datetime.datetime.strptime(birthdate_str, "%Y-%m-%d")
@@ -492,7 +492,7 @@ class CLIView:
         print("Leave fields blank to keep current values.")
         
         # Date
-        date_str = input(f"Date [{record.date.strftime("%Y-%m-%d")}]: ")
+        date_str = input(f"Date [{record.date.strftime('%Y-%m-%d')}]: ")
         if date_str:
             try:
                 date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
@@ -594,7 +594,7 @@ class CLIView:
                 if 1 <= record_choice <= len(records):
                     record = records[record_choice - 1]
                     
-                    confirm = input(f"Are you sure you want to delete growth record from {record.date.strftime("%Y-%m-%d")}? (y/n): ")
+                    confirm = input(f"Are you sure you want to delete growth record from {record.date.strftime('%Y-%m-%d')}? (y/n): ")
                     if confirm.lower() == "y":
                         if self.growth_controller.delete_growth_record(baby.id, record.id):
                             print("\nGrowth record deleted successfully.")
