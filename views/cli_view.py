@@ -3,7 +3,7 @@
 import datetime
 
 class CLIView:
-    def __init__(self, baby_controller, growth_controller, milestone_controller):
+    def __init__(self, baby_controller, growth_controller, milestone_controller, daily_log_controller):
         """
         Initialize CLI view.
         
@@ -11,10 +11,12 @@ class CLIView:
             baby_controller (BabyController): Controller for baby operations
             growth_controller (GrowthController): Controller for growth records operations
             milestone_controller (MilestoneController): Controller for milestone operations
+            daily_log_controller (DailyLogController): Controller for log operations
         """
         self.baby_controller = baby_controller
         self.growth_controller = growth_controller
         self.milestone_controller = milestone_controller
+        self.daily_log_controller = daily_log_controller
 
     def display_main_menu(self):
         """Display the main menu and get user choice"""
@@ -41,7 +43,7 @@ class CLIView:
             elif choice == '3':
                 self.track_milestones_menu()
             elif choice == '4':
-                print("Daily logs not implemented yet.")
+                self.daily_logs_menu()
             elif choice == '5':
                 print("Reports not implemented yet.")
             elif choice == '0':
@@ -107,7 +109,7 @@ class CLIView:
         if not babies:
             print("No babies found.")
             return
-        
+
         for i, baby in enumerate(babies, 1):
             age_info = baby.calculate_age()
             age_str = ""
@@ -405,7 +407,7 @@ class CLIView:
                 print("Invalid selection.")            
         except ValueError:
             print("Please enter a valid number.")
-    
+
     def _display_growth_records(self, baby):
         """Display growth record for baby."""
         records = self.growth_controller.get_growth_records(baby.id)
@@ -730,7 +732,7 @@ class CLIView:
             expected_range,
             notes
         )
-
+        
         if milestone:
             print("\nMilestone added successfully.")
         else:
@@ -1066,3 +1068,44 @@ class CLIView:
 
 # TODO: Implement daily logs menu functions
 ################## Daily logs menu ##################
+    def daily_logs_menu(self):
+        """Display daily logs menu."""
+        while True:
+            print("\n===== Daily Logs =====")
+            print("1. Add Feeding Log")
+            print("2. Add Sleep Log")
+            print("3. Add Diaper Log")
+            print("4. View Logs")
+            print("0. Back to Main Menu")
+            
+            choice = input("\nEnter your choice: ")
+            
+            if choice == '1':
+                self.add_feeding_log()
+            elif choice == '2':
+                self.add_sleep_log()
+            elif choice == '3':
+                self.add_diaper_log()
+            elif choice == '4':
+                self.view_daily_logs()
+            elif choice == '0':
+                break
+            else:
+                print("Invalid choice. Please try again.")
+    
+    # TODO: Implement add methods for feeding, sleep, diaper logs and view logs method
+    def add_feeding_log(self):
+        """Add a new feeding log."""
+        pass
+    
+    def add_sleep_log(self):
+        """Add a new sleep log"""
+        pass
+    
+    def add_diaper_log(self):
+        """Add a new diaper log"""
+        pass
+    
+    def view_daily_logs(self):
+        """View daily logs for a baby."""
+        pass

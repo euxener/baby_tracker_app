@@ -5,6 +5,10 @@ import os
 from models.baby import Baby
 from models.growth_record import GrowthRecord
 from models.milestone import Milestone
+from models.daily_log import DailyLog
+from models.feeding_log import FeedingLog
+from models.sleep_log import SleepLog
+from models.diaper_log import DiaperLog
 from datetime import datetime
 
 class DataService:
@@ -52,7 +56,7 @@ class DataService:
         # TODO: Implement saving of daily logs
         if hasattr(baby, 'daily_logs') and baby.daily_logs:
             baby_dict["daily_logs"] = [
-                daily_log.to_dict() for daily_log in baby.daily_logs
+                log.to_dict() for log in baby.daily_logs
             ]
         else:
             baby_dict['daily_logs'] = []
@@ -127,7 +131,54 @@ class DataService:
                 
         # TODO: Implement loading of daily logs
         # Load daily logs
-        
+        if "daily_logs" in baby_dict:
+            baby.daily_logs = []
+            
+            for log_dict in baby_dict["daily_logs"]:
+                date = datetime.fromisoformat(log_dict["date"])
+                time = datetime.fromisoformat(log_dict["time"]).time()
+                log_type = log_dict["log_type"]
+                
+                if log_type == "feeding":
+                    log = FeedingLog(
+                        log_dict["baby_id"],
+                        date,
+                        time,
+                        log_dict["feeding_type"],
+                        log_dict["amount"],
+                        log_dict["duration"],
+                        log_dict["notes"]
+                    )
+                elif log_type == "sleep":
+                    end_time = datetime.fromisoformat(log_dict["end_time"]).time() if log_dict["end_time"] else None
+                    log_type = SleepLog(
+                        log_dict["baby_id"],
+                        date,
+                        time,
+                        end_time,
+                        log_dict["quality"],
+                        log_dict["notes"]
+                    )
+                elif log_type == "diaper":
+                    log = DiaperLog(
+                        log_dict["baby_id"],
+                        date,
+                        time,
+                        log_dict["diaper_type"],
+                        log_dict["notes"]
+                    )
+                else:
+                    log = DailyLog(
+                        log_dict["baby_id"],
+                        date,
+                        time,
+                        log_type,
+                        log_dict["notes"]
+                    )
+                
+                log.id = log_dict["id"] # type: ignore # Saved ID
+                baby.daily_logs.append(log) # type: ignore
+                
         return baby
     
     def load_all_babies(self):
