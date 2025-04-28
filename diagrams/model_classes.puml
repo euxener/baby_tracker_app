@@ -1,0 +1,81 @@
+@startuml model_classes
+package "Models" {
+    class Baby {
+        - id: UUID
+        - name: String
+        - birthdate: DateTime
+        - gender: String
+        - notes: String
+        - growth_records: List<GrowthRecord>
+        - milestones: List<Milestone>
+        - daily_logs: List<DailyLog>
+        + calculate_age(as_of_date): Dict
+        + add_growth_record(growth_record): void
+        + add_milestone(milestone): void
+        + add_daily_log(log): void
+        + to_dict(): Dict
+    }
+
+    class GrowthRecord {
+        - id: UUID
+        - baby_id: UUID
+        - date: DateTime
+        - weight: Float
+        - height: Float
+        - head_circumference: Float
+        - notes: String
+        + to_dict(): Dict
+    }
+
+    class Milestone {
+        - id: UUID
+        - baby_id: UUID
+        - name: String
+        - category: String
+        - achieved_date: DateTime
+        - expected_range: Dict
+        - notes: String
+        + is_achieved(): Boolean
+        + achieved_on_time(baby_birthdate): Boolean
+        + to_dict(): Dict
+    }
+
+    class DailyLog {
+        - id: UUID
+        - baby_id: UUID
+        - date: DateTime
+        - time: DateTime
+        - log_type: String
+        - notes: String
+        + to_dict(): Dict
+    }
+
+    class FeedingLog {
+        - feeding_type: String
+        - amount: Float
+        - duration: Integer
+        + calculate_daily_total(): Float
+        + to_dict(): Dict
+    }
+
+    class SleepLog {
+        - start_time: DateTime
+        - end_time: DateTime
+        - duration: Integer
+        - quality: String
+        + to_dict(): Dict
+    }
+
+    class DiaperLog {
+        - diaper_type: String
+        + to_dict(): Dict
+    }
+
+    Baby "1" -- "0..*" GrowthRecord : has
+    Baby "1" -- "0..*" Milestone : has
+    Baby "1" -- "0..*" DailyLog : has
+    DailyLog <|-- FeedingLog
+    DailyLog <|-- SleepLog
+    DailyLog <|-- DiaperLog
+}
+@enduml

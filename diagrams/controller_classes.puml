@@ -1,0 +1,39 @@
+@startuml controller_classes
+package "Controllers" {
+    class BabyController {
+        - data_service: DataService
+        + create_baby(name, birthdate, gender, notes): Baby
+        + get_baby_by_id(baby_id): Baby
+        + get_all_babies(): List<Baby>
+        + update_baby(baby_id, **kwargs): Baby
+        + delete_baby(baby_id): Boolean
+    }
+
+    class GrowthController {
+        - data_service: DataService
+        + add_growth_record(baby_id, date, weight, height, head_circumference, notes): GrowthRecord
+        + get_growth_records(baby_id): List<GrowthRecord>
+        + update_growth_record(baby_id, record_id, **kwargs): GrowthRecord
+        + delete_growth_record(baby_id, record_id): Boolean
+    }
+
+    class MilestoneController {
+        - data_service: DataService
+        + add_milestone(baby_id, name, category, achieved_date, expected_range, notes): Milestone
+        + get_milestones(baby_id): List<Milestone>
+        + update_milestone(baby_id, milestone_id, **kwargs): Milestone
+        + delete_milestone(baby_id, milestone_id): Boolean
+        + get_milestone_suggestions(baby_age_months): List<Dict>
+    }
+
+    class DailyLogController {
+        - data_service: DataService
+        + add_feeding_log(baby_id, date, time, feeding_type, amount, duration, notes): FeedingLog
+        + add_sleep_log(baby_id, date, start_time, end_time, quality, notes): SleepLog
+        + add_diaper_log(baby_id, date, time, diaper_type, notes): DiaperLog
+        + get_daily_logs(baby_id, date): List<DailyLog>
+        + update_daily_log(baby_id, log_id, **kwargs): DailyLog
+        + delete_daily_log(baby_id, log_id): Boolean
+    }
+}
+@enduml

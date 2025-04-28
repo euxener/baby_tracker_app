@@ -1,0 +1,30 @@
+@startuml relationships
+package "Models" {
+    [Baby]
+    [GrowthRecord]
+    [Milestone]
+    [DailyLog]
+}
+
+package "Controllers" {
+    [BabyController]
+    [GrowthController]
+    [MilestoneController]
+    [DailyLogController]
+}
+
+package "Services" {
+    [DataService]
+    [AnalyticsService]
+}
+
+package "Views" {
+    [CLIView]
+    [GUIView]
+}
+
+Controllers --> Models : uses
+Views --> Controllers : uses
+Controllers --> Services : uses
+
+@enduml

@@ -1,0 +1,27 @@
+@startuml view_classes
+package "Views" {
+    class CLIView {
+        - baby_controller: BabyController
+        - growth_controller: GrowthController
+        - milestone_controller: MilestoneController
+        - daily_log_controller: DailyLogController
+        + display_main_menu(): String
+        + run(): void
+        + manage_babies_menu(): void
+        + track_growth_menu(): void
+        + track_milestones_menu(): void
+        + daily_logs_menu(): void
+        + reports_menu(): void
+    }
+
+    class GUIView {
+        - baby_controller: BabyController
+        - growth_controller: GrowthController
+        - milestone_controller: MilestoneController
+        - daily_log_controller: DailyLogController
+        - main_window: QMainWindow
+        + setup_ui(): void
+        + show(): void
+    }
+}
+@enduml

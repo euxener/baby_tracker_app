@@ -1,0 +1,19 @@
+@startuml service_classes
+package "Services" {
+    class DataService {
+        - data_dir: String
+        + save_baby(baby): Boolean
+        + load_baby(baby_id): Baby
+        + load_all_babies(): List<Baby>
+        + delete_baby(baby_id): Boolean
+        - _get_baby_file_path(baby_id): String
+    }
+
+    class AnalyticsService {
+        + calculate_growth_percentiles(baby): Dict
+        + analyze_sleep_patterns(baby): Dict
+        + analyze_feeding_patterns(baby): Dict
+        + generate_milestone_report(baby): Dict
+    }
+}
+@enduml
