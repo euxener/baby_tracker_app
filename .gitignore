@@ -5,6 +5,8 @@ build/
 dist/
 wheels/
 *.egg-info
+.pytest_cache
+main.spec
 
 # Virtual environments
 .venv
@@ -14,3 +16,6 @@ wheels/
 
 # Test data
 data
+
+# Local files
+.DS_store

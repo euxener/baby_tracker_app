@@ -4,6 +4,8 @@ from datetime import datetime
 import re
 import uuid
 
+from models import daily_log
+
 class Baby:
     def __init__(self, name, birthdate, gender = None, notes = None) -> None:
         """
@@ -21,6 +23,7 @@ class Baby:
         self.gender = gender
         self.notes = notes
         self.growth_records = []
+        self.milestones = []
         self.daily_logs = []
         
     def calculate_age(self, as_of_date = None):
@@ -36,6 +39,7 @@ class Baby:
         if as_of_date is None:
             as_of_date = datetime.now()
         
+        # TODO: Fix calculation to avoid standard 30 day months
         delta = as_of_date - self.birthdate
         years = delta.days // 365
         remaining_days = delta.days % 365
@@ -57,6 +61,28 @@ class Baby:
             growth_record (GrowthRecord): Growth record to add
         """
         self.growth_records.append(growth_record)
+        
+    def add_milestone(self, milestone):
+        """
+        Add a milestone to baby's history
+
+        Args:
+            milestone (Milestone): Milestone to add
+        """
+        if not hasattr(self, 'milestones'):
+            self.milestones = []
+        self.milestones.append(milestone)
+    
+    def add_daily_log(self, log):
+        """
+        Add a daily log to baby's history
+
+        Args:
+            log (DailyLog): Log to add
+        """
+        if not hasattr(self, 'daily_logs'):
+            self.daily_logs = []
+        self.daily_logs.append(log)
         
     def to_dict(self):
         """

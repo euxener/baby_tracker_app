@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "nicegui>=2.15.0",
+    "py2app>=0.28.8",
+    "pyinstaller>=6.13.0",
+    "pyside6>=6.9.0",
+    "pytest>=8.3.5",
+]
