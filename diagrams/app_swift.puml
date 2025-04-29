@@ -289,23 +289,23 @@ FileDataService ..> DailyLog : persists
 
 ' Add layer boundary descriptions
 note top of "View Layer (SwiftUI)" 
-  Declarative UI components
-  built with SwiftUI
+    Declarative UI components
+    built with SwiftUI
 end note
 
 note top of "ViewModel Layer"
-  Reactive state management
-  and business logic
+    Reactive state management
+    and business logic
 end note
 
 note top of "Service Layer"
-  Data persistence and
-  external communication
+    Data persistence and
+    external communication
 end note
 
 note top of "Model Layer"
-  Value types representing
-  core domain entities
+    Value types representing
+    core domain entities
 end note
 
 @enduml
