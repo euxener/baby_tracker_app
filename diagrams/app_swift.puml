@@ -1,0 +1,311 @@
+@startuml Baby Tracker Swift Architecture - Layered View
+
+' Set some styling
+skinparam packageBackgroundColor white
+skinparam packageBorderColor black
+skinparam packageFontSize 16
+skinparam packageFontStyle bold
+skinparam noteBackgroundColor #f5f5f5
+skinparam noteBorderColor #d0d0d0
+
+' Define packages for layers
+package "View Layer (SwiftUI)" {
+    struct "BabyListView" as BabyListView {
+        -@ObservedObject viewModel: BabyViewModel
+    }
+    
+    struct "BabyDetailView" as BabyDetailView {
+        -@ObservedObject viewModel: BabyDetailViewModel
+    }
+    
+    struct "BabyFormView" as BabyFormView {
+        -@ObservedObject viewModel: BabyViewModel
+        -mode: FormMode
+    }
+    
+    struct "GrowthListView" as GrowthListView {
+        -@ObservedObject viewModel: GrowthViewModel
+    }
+    
+    struct "GrowthFormView" as GrowthFormView {
+        -@ObservedObject viewModel: GrowthViewModel
+        -mode: FormMode
+    }
+    
+    struct "GrowthChartView" as GrowthChartView {
+        -@ObservedObject viewModel: GrowthViewModel
+    }
+    
+    struct "MilestoneListView" as MilestoneListView {
+        -@ObservedObject viewModel: MilestoneViewModel
+    }
+    
+    struct "MilestoneFormView" as MilestoneFormView {
+        -@ObservedObject viewModel: MilestoneViewModel
+        -mode: FormMode
+    }
+    
+    struct "DailyLogListView" as DailyLogListView {
+        -@ObservedObject viewModel: DailyLogViewModel
+        -@State selectedDate: Date
+    }
+    
+    struct "FeedingLogFormView" as FeedingLogFormView {
+        -@ObservedObject viewModel: DailyLogViewModel
+        -mode: FormMode
+    }
+    
+    struct "SleepLogFormView" as SleepLogFormView {
+        -@ObservedObject viewModel: DailyLogViewModel
+        -mode: FormMode
+    }
+    
+    struct "DiaperLogFormView" as DiaperLogFormView {
+        -@ObservedObject viewModel: DailyLogViewModel
+        -mode: FormMode
+    }
+}
+
+package "ViewModel Layer" {
+    interface "ObservableObject" as ObservableObject {
+    }
+    
+    class "BabyViewModel" as BabyViewModel {
+        +@Published babies: [Baby]
+        -dataService: DataServiceProtocol
+        +loadBabies()
+        +addBaby(name:birthdate:gender:notes:)
+        +updateBaby(Baby)
+        +deleteBaby(UUID)
+    }
+    
+    class "BabyDetailViewModel" as BabyDetailViewModel {
+        +@Published baby: Baby
+        -dataService: DataServiceProtocol
+        +loadBaby(UUID)
+        +updateBaby(name:birthdate:gender:notes:)
+    }
+    
+    class "GrowthViewModel" as GrowthViewModel {
+        +@Published growthRecords: [GrowthRecord]
+        +babyId: UUID
+        -dataService: DataServiceProtocol
+        +loadGrowthRecords()
+        +addGrowthRecord(...)
+        +updateGrowthRecord(GrowthRecord)
+        +deleteGrowthRecord(UUID)
+    }
+    
+    class "MilestoneViewModel" as MilestoneViewModel {
+        +@Published milestones: [Milestone]
+        +standardMilestones: [String: [Milestone]]
+        +babyId: UUID
+        -dataService: DataServiceProtocol
+        +loadMilestones()
+        +addMilestone(...)
+        +getMilestoneSuggestions(ageInMonths:)
+    }
+    
+    class "DailyLogViewModel" as DailyLogViewModel {
+        +@Published dailyLogs: [DailyLog]
+        +babyId: UUID
+        -dataService: DataServiceProtocol
+        +loadDailyLogs()
+        +addFeedingLog(...)
+        +addSleepLog(...)
+        +addDiaperLog(...)
+    }
+    
+    BabyViewModel ..|> ObservableObject
+    BabyDetailViewModel ..|> ObservableObject
+    GrowthViewModel ..|> ObservableObject
+    MilestoneViewModel ..|> ObservableObject
+    DailyLogViewModel ..|> ObservableObject
+}
+
+package "Service Layer" {
+    interface "DataServiceProtocol" as DataServiceProtocol {
+        +saveBaby(Baby) Bool
+        +loadBaby(UUID) Baby?
+        +loadAllBabies() [Baby]
+        +deleteBaby(UUID) Bool
+        +addGrowthRecord(...) Bool
+        +addMilestone(...) Bool
+        +addDailyLog(...) Bool
+    }
+    
+    class "FileDataService" as FileDataService {
+        -dataDirectory: URL
+        +saveBaby(Baby) Bool
+        +loadBaby(UUID) Baby?
+        +loadAllBabies() [Baby]
+        +deleteBaby(UUID) Bool
+    }
+    
+    class "CoreDataService" as CoreDataService {
+        -persistentContainer: NSPersistentContainer
+        +saveBaby(Baby) Bool
+        +loadBaby(UUID) Baby?
+        +loadAllBabies() [Baby]
+        +deleteBaby(UUID) Bool
+    }
+    
+    FileDataService ..|> DataServiceProtocol
+    CoreDataService ..|> DataServiceProtocol
+}
+
+package "Model Layer" {
+    interface "Identifiable" as Identifiable {
+        +id: UUID
+    }
+    
+    interface "Codable" as Codable {
+        +encode(to: Encoder)
+        +init(from: Decoder)
+    }
+    
+    interface "LogType" as LogType {
+        +id: UUID
+        +babyId: UUID
+        +date: Date
+        +time: Date
+        +notes: String?
+    }
+    
+    struct "Baby" as Baby {
+        +id: UUID
+        +name: String
+        +birthdate: Date
+        +gender: String?
+        +notes: String?
+        +calculateAge() Int
+    }
+    
+    struct "GrowthRecord" as GrowthRecord {
+        +id: UUID
+        +babyId: UUID
+        +date: Date
+        +weight: Double?
+        +height: Double?
+        +headCircumference: Double?
+        +notes: String?
+    }
+    
+    struct "Milestone" as Milestone {
+        +id: UUID
+        +babyId: UUID
+        +name: String
+        +category: String
+        +achievedDate: Date?
+        +expectedRange: MilestoneRange?
+        +notes: String?
+        +isAchieved() Bool
+    }
+    
+    struct "MilestoneRange" as MilestoneRange {
+        +minMonths: Int
+        +maxMonths: Int
+    }
+    
+    struct "DailyLog" as DailyLog {
+        +id: UUID
+        +babyId: UUID
+        +date: Date
+        +time: Date
+        +logType: String
+        +notes: String?
+    }
+    
+    struct "FeedingLog" as FeedingLog {
+        +baseLog: DailyLog
+        +feedingType: String
+        +amount: Double?
+        +duration: Int?
+    }
+    
+    struct "SleepLog" as SleepLog {
+        +baseLog: DailyLog
+        +startTime: Date
+        +endTime: Date?
+        +quality: String?
+        +duration() TimeInterval?
+    }
+    
+    struct "DiaperLog" as DiaperLog {
+        +baseLog: DailyLog
+        +diaperType: String
+    }
+    
+    enum "FormMode" as FormMode {
+        case create
+        case edit
+    }
+    
+    enum "FeedingType" as FeedingType {
+        case breast
+        case bottle
+        case solid
+    }
+    
+    enum "DiaperType" as DiaperType {
+        case wet
+        case soiled
+        case both
+    }
+    
+    Baby ..|> Identifiable
+    Baby ..|> Codable
+    GrowthRecord ..|> Identifiable
+    GrowthRecord ..|> Codable
+    Milestone ..|> Identifiable
+    Milestone ..|> Codable
+    DailyLog ..|> Identifiable
+    DailyLog ..|> Codable
+    DailyLog ..|> LogType
+}
+
+' Layer Relationships
+BabyListView ..> BabyViewModel : observes
+BabyDetailView ..> BabyDetailViewModel : observes
+GrowthListView ..> GrowthViewModel : observes
+MilestoneListView ..> MilestoneViewModel : observes
+DailyLogListView ..> DailyLogViewModel : observes
+
+BabyViewModel ..> DataServiceProtocol : uses
+BabyDetailViewModel ..> DataServiceProtocol : uses
+GrowthViewModel ..> DataServiceProtocol : uses
+MilestoneViewModel ..> DataServiceProtocol : uses
+DailyLogViewModel ..> DataServiceProtocol : uses
+
+BabyViewModel ..> Baby : manages
+GrowthViewModel ..> GrowthRecord : manages
+MilestoneViewModel ..> Milestone : manages
+DailyLogViewModel ..> DailyLog : manages
+
+FileDataService ..> Baby : persists
+FileDataService ..> GrowthRecord : persists
+FileDataService ..> Milestone : persists
+FileDataService ..> DailyLog : persists
+
+' Add layer boundary descriptions
+note top of "View Layer (SwiftUI)" 
+  Declarative UI components
+  built with SwiftUI
+end note
+
+note top of "ViewModel Layer"
+  Reactive state management
+  and business logic
+end note
+
+note top of "Service Layer"
+  Data persistence and
+  external communication
+end note
+
+note top of "Model Layer"
+  Value types representing
+  core domain entities
+end note
+
+@enduml
